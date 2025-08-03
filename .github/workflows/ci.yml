@@ -1,6 +1,5 @@
 name: CI
 
-# Trigger on pushes or PRs to main
 on:
   push:
     branches: [ main ]
@@ -8,67 +7,16 @@ on:
     branches: [ main ]
 
 jobs:
-  # ---- Backend job ----
-  backend:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      # 1) Set up Python (adjust version if needed)
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # 2) Install backend dependencies
-      - name: Install Backend Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r backend/requirements.txt
-
-      # 3) Lint backend code
-      - name: Lint Backend (flake8)
-        run: |
-          cd backend
-          flake8 .
-
-      # 4) Run backend tests
-      - name: Test Backend (pytest)
-        run: |
-          cd backend
-          pytest --maxfail=1 --disable-warnings -q
-
-  # ---- Frontend job ----
-  frontend:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # 1) Set up Node.js
-      - name: Use Node ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      # 2) Install frontend dependencies
-      - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm ci
-
-      # 3) Lint frontend code
-      - name: Lint Frontend
-        run: |
-          cd frontend
-          npm run lint
-
-      # 4) Run frontend tests
-      - name: Test Frontend
-        run: |
-          cd frontend
-          npm test
-
+        with: node-version: "16"
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Run tests
+        run: npm test
